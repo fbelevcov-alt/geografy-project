@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Найспекотніші та найхолодніші місця планети</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #2e1065, #1d4ed8, #0284c7); color: #fff; height: 100vh; overflow: hidden; }
+  input[type="radio"] { display: none; }
+  .bg { position: fixed; inset: 0; opacity: 0; transition: 1.2s; pointer-events: none; z-index: 0; }
+  .c { background: linear-gradient(135deg, #0f172a, #1e3a8a, #0284c7); }
+  .h { background: linear-gradient(135deg, #450a0a, #9a3412, #ea580c); }
+  #s1:checked ~ .c, #s2:checked ~ .h { opacity: 1; }
+  .tris { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+  .tw { position: absolute; transition: transform 2s cubic-bezier(.22,1,.36,1); }
+  .ts { width: 100%; height: 100%; animation: fl 14s ease-in-out infinite alternate; }
+  .w1 { width: 320px; height: 320px; top: -30px; left: -30px; }
+  .w2 { width: 360px; height: 360px; top: -40px; right: -30px; }
+  .w2 .ts { animation-delay: -4s; animation-duration: 17s; }
+  .w3 { width: 400px; height: 400px; bottom: -50px; left: -40px; }
+  .w3 .ts { animation-delay: -7s; animation-duration: 19s; }
+  .w4 { width: 370px; height: 370px; bottom: -40px; right: -30px; }
+  .w4 .ts { animation-delay: -2s; animation-duration: 15s; }
+  @keyframes fl { 0% { transform: translate3d(0,0,0) rotate(0deg); } 100% { transform: translate3d(18px,22px,0) rotate(6deg); } }
+  #s1:checked ~ .tris .w1 { transform: translate3d(30px,20px,0) rotate(9deg); }
+  #s1:checked ~ .tris .w2 { transform: translate3d(-26px,22px,0) rotate(-8deg); }
+  #s2:checked ~ .tris .w1 { transform: translate3d(55px,35px,0) rotate(16deg); }
+  #s2:checked ~ .tris .w2 { transform: translate3d(-50px,40px,0) rotate(-15deg); }
+  .bar { position: fixed; top: 0; left: 0; height: 5px; width: 25%; background: #38bdf8; transition: .6s; z-index: 999; }
+  #s1:checked ~ .bar { width: 50%; background: #7dd3fc; }
+  #s2:checked ~ .bar { width: 75%; background: #fcd34d; }
+  #s3:checked ~ .bar { width: 100%; }
+  .nav { position: fixed; top: 18px; left: 2.5rem; right: 2.5rem; display: flex; justify-content: space-between; z-index: 900; }
+  .box { background: rgba(15,23,42,.75); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.3); border-radius: 50px; padding: .5rem 1.1rem; display: flex; align-items: center; gap: .8rem; font-weight: 700; }
+  .cnt, .pair { display: none; align-items: center; gap: .8rem; }
+  #s0:checked ~ .nav .c0, #s1:checked ~ .nav .c1, #s2:checked ~ .nav .c2, #s3:checked ~ .nav .c3 { display: inline; }
+  #s0:checked ~ .nav .p0, #s1:checked ~ .nav .p1, #s2:checked ~ .nav .p2, #s3:checked ~ .nav .p3 { display: flex; }
+  .btn { background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.35); color: #fff; padding: .45rem 1rem; border-radius: 25px; cursor: pointer; font-size: .92rem; font-weight: 700; transition: .2s; user-select: none; }
+  .btn:hover:not(.off) { background: rgba(255,255,255,.38); }
+  .off { opacity: .4; cursor: not-allowed; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.35); cursor: pointer; transition: .3s; }
+  #s0:checked ~ .nav .d0, #s1:checked ~ .nav .d1, #s2:checked ~ .nav .d2, #s3:checked ~ .nav .d3 { width: 28px; border-radius: 10px; background: #38bdf8; }
+  #s2:checked ~ .nav .d2 { background: #fcd34d; }
+  .stage { position: relative; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+  .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 5.5rem 6vw 2rem; opacity: 0; visibility: hidden; transform: translateY(20px); transition: .6s cubic-bezier(.22,1,.36,1); }
+  #s0:checked ~ .stage .sl0, #s1:checked ~ .stage .sl1, #s2:checked ~ .stage .sl2, #s3:checked ~ .stage .sl3 { opacity: 1; visibility: visible; transform: translateY(0); }
+  #s1:checked ~ .stage .sl1 .card, #s2:checked ~ .stage .sl2 .card, #s3:checked ~ .stage .sl3 .out { pointer-events: auto; }
+  .badge { padding: .5rem 1.2rem; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); border-radius: 50px; font-size: .9rem; font-weight: 700; text-transform: uppercase; margin-bottom: 1.4rem; }
+  h1 { font-size: clamp(2rem,4vw,3.4rem); font-weight: 800; line-height: 1.22; max-width: 920px; text-align: center; }
+  h2 { font-size: clamp(1.7rem,3vw,2.6rem); font-weight: 800; margin-bottom: 1.5rem; text-align: center; }
+  .grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.2rem; max-width: 1180px; width: 100%; }
+  .card { background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.26); backdrop-filter: blur(14px); border-radius: 20px; padding: 1.3rem 1.5rem; display: flex; flex-direction: column; justify-content: space-between; transition: .25s; }
+  .card:hover { background: rgba(255,255,255,.22); transform: translateY(-3px); }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: .8rem; margin-bottom: .6rem; }
+  .tmp { background: rgba(0,0,0,.4); border: 1.5px solid #7dd3fc; color: #7dd3fc; font-weight: 800; padding: .28rem .65rem; border-radius: 10px; white-space: nowrap; font-size: .92rem; }
+  .sl2 .tmp { border-color: #fcd34d; color: #fcd34d; }
+  .card p { font-size: .92rem; line-height: 1.48; color: rgba(255,255,255,.92); margin-bottom: .8rem; }
+  .gl { align-self: flex-start; padding: .4rem .85rem; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35); border-radius: 12px; color: #fff; font-size: .85rem; font-weight: 700; cursor: pointer; transition: .2s; }
+  .gl:hover { background: rgba(255,255,255,.35); }
+  .out { text-align: center; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); backdrop-filter: blur(16px); padding: 3.5rem 4.5rem; border-radius: 28px; }
+  .out p { font-size: 1.5rem; line-height: 1.6; color: #e0f2fe; margin-top: 1rem; }
+</style>
+</head>
+<body>
+<input type="radio" name="s" id="s0" checked>
+<input type="radio" name="s" id="s1">
+<input type="radio" name="s" id="s2">
+<input type="radio" name="s" id="s3">
+<div class="bg c"></div><div class="bg h"></div><div class="bar"></div>
+<div class="tris">
+  <div class="tw w1"><svg class="ts" viewBox="0 0 100 100"><polygon points="0,0 100,28 28,100" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.4)" stroke-width=".9"/></svg></div>
+  <div class="tw w2"><svg class="ts" viewBox="0 0 100 100"><polygon points="15,0 100,0 100,90" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.4)" stroke-width=".9"/></svg></div>
+  <div class="tw w3"><svg class="ts" viewBox="0 0 100 100"><polygon points="0,15 95,75 0,100" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.4)" stroke-width=".9"/></svg></div>
+  <div class="tw w4"><svg class="ts" viewBox="0 0 100 100"><polygon points="45,0 100,100 0,85" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.4)" stroke-width=".9"/></svg></div>
+</div>
+<audio id="bgWind" src="wind.mp3" autoplay loop preload="auto"></audio>
+<header class="nav">
+  <div class="box">
+    <span class="cnt c0">Слайд 1 / 4</span><span class="cnt c1">Слайд 2 / 4</span><span class="cnt c2">Слайд 3 / 4</span><span class="cnt c3">Слайд 4 / 4</span>
+    <button type="button" class="btn" id="sndBtn" onclick="toggleWind()">🔊 Звук</button>
+  </div>
+  <nav class="box">
+    <div class="pair p0"><span class="btn off">← Назад</span><label for="s0" class="dot d0"></label><label for="s1" class="dot d1"></label><label for="s2" class="dot d2"></label><label for="s3" class="dot d3"></label><label for="s1" class="btn">Далі →</label></div>
+    <div class="pair p1"><label for="s0" class="btn">← Назад</label><label for="s0" class="dot d0"></label><label for="s1" class="dot d1"></label><label for="s2" class="dot d2"></label><label for="s3" class="dot d3"></label><label for="s2" class="btn">Далі →</label></div>
+    <div class="pair p2"><label for="s1" class="btn">← Назад</label><label for="s0" class="dot d0"></label><label for="s1" class="dot d1"></label><label for="s2" class="dot d2"></label><label for="s3" class="dot d3"></label><label for="s3" class="btn">Далі →</label></div>
+    <div class="pair p3"><label for="s2" class="btn">← Назад</label><label for="s0" class="dot d0"></label><label for="s1" class="dot d1"></label><label for="s2" class="dot d2"></label><label for="s3" class="dot d3"></label><span class="btn off">Далі →</span></div>
+  </nav>
+</header>
+<main class="stage">
+  <section class="slide sl0">
+    <div class="badge">Найспекотніші та найхолодніші місця планети</div>
+    <h1>На планеті Земля існує різкий контраст між <span style="color:#7dd3fc">екстремально холодними</span> та неймовірно <span style="color:#fdba74">спекотними регіонами</span></h1>
+  </section>
+  <section class="slide sl1">
+    <h2>❄️ Найхолодніші місця планети</h2>
+    <div class="grid">
+      <div class="card"><div><div class="top"><h3>Станція «Восток» (Антарктида)</h3><span class="tmp">-89,2 °C</span></div><p>Офіційно визнана абсолютним полюсом холоду на Землі. Тут 21 липня 1983 року було зафіксовано найнижчу температуру повітря.</p></div><button type="button" class="gl" onclick="find('Станція Восток Антарктида')">🔍 Знайти в Google ↗</button></div>
+      <div class="card"><div><div class="top"><h3>Купол Фудзі та Купол Аргуса</h3><span class="tmp">&lt; -90 °C</span></div><p>Високогірні крижані плато в Антарктиді, де супутникові дані фіксували температури поверхні понад -90 °C.</p></div><button type="button" class="gl" onclick="find('Купол Фудзі Антарктида')">🔍 Знайти в Google ↗</button></div>
+      <div class="card"><div><div class="top"><h3>Оймякон та Верхоянськ (Сибір)</h3><span class="tmp">-71,2 °C</span></div><p>Найхолодніші постійно заселені місця на планеті з неофіційним рекордом близько -71,2 °C.</p></div><button type="button" class="gl" onclick="find('Оймякон температура')">🔍 Знайти в Google ↗</button></div>
+      <div class="card"><div><div class="top"><h3>Снаг (Юкон, Канада)</h3><span class="tmp">-63 °C</span></div><p>Найхолодніше зафіксоване місце в Північній Америці, де температура падала до -63 °C.</p></div><button type="button" class="gl" onclick="find('Снаг Юкон Канада')">🔍 Знайти в Google ↗</button></div>
+    </div>
+  </section>
+  <section class="slide sl2">
+    <h2>🔥 Найспекотніші місця планети</h2>
+    <div class="grid">
+      <div class="card"><div><div class="top"><h3>Пустеля Деште-Лут (Іран)</h3><span class="tmp">+70...+81 °C</span></div><p>За даними супутників NASA, поверхня цієї пустелі прогрівалася до рекордних +70 °C... +81 °C.</p></div><button type="button" class="gl" onclick="find('Пустеля Деште-Лут Іран')">🔍 Знайти в Google ↗</button></div>
+      <div class="card"><div><div class="top"><h3>Долина Смерті (США)</h3><span class="tmp">+56,7 °C</span></div><p>Одне з найспекотніших місць за температурою повітря в тіні (рекорд сягав близько +56,7 °C).</p></div><button type="button" class="gl" onclick="find('Долина Смерті температура')">🔍 Знайти в Google ↗</button></div>
+      <div class="card"><div><div class="top"><h3>Данакільська западина (Ефіопія)</h3><span class="tmp">&gt; +34 °C сер.</span></div><p>Одне з найекстремальніших місць на Землі з найвищою середньорічною температурою повітря (понад +34 °C).</p></div><button type="button" class="gl" onclick="find('Данакільська западина Ефіопія')">🔍 Знайти в Google ↗</button></div>
+      <div class="card"><div><div class="top"><h3>Мітріба (Кувейт) та Тірат-Цві</h3><span class="tmp">+53...+54 °C</span></div><p>Місця, де температура повітря влітку перевищувала +53 °C... +54 °C.</p></div><button type="button" class="gl" onclick="find('Мітріба Кувейт температура')">🔍 Знайти в Google ↗</button></div>
+    </div>
+  </section>
+  <section class="slide sl3">
+    <div class="out">
+      <h2>Дякую за увагу!</h2>
+      <p>Робота учня 7-Б класу<br><strong>Бєлєвцова Андрія</strong></p>
+    </div>
+  </section>
+</main>
+<script>
+  var audio = document.getElementById('bgWind');
+  var sndBtn = document.getElementById('sndBtn');
+  var muted = false;
+
+  function find(text) {
+    var domain = 'www' + '.' + 'google' + '.' + 'com';
+    window.open('https://' + domain + '/search?q=' + encodeURIComponent(text), '_blank');
+  }
+
+  function syncBtn() {
+    sndBtn.textContent = audio.paused ? '🔇 Звук' : '🔊 Звук';
+  }
+
+  function playWind() {
+    if (muted) return;
+    audio.volume = 0.35;
+    var p = audio.play();
+    if (p) p.then(syncBtn).catch(syncBtn);
+  }
+
+  function toggleWind() {
+    if (audio.paused) {
+      muted = false;
+      playWind();
+    } else {
+      muted = true;
+      audio.pause();
+      syncBtn();
+    }
+  }
+
+  window.addEventListener('load', playWind);
+  document.addEventListener('click', function unlock() {
+    if (!muted && audio.paused) playWind();
+    document.removeEventListener('click', unlock);
+  });
+</script>
+</body>
+</html>
